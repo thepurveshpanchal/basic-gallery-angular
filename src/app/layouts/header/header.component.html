@@ -1,0 +1,14 @@
+<nav mat-tab-nav-bar>
+  <h1>Welcome to purvesh.photos</h1>
+  <a
+    mat-tab-link
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    Photos
+  </a>
+  <a mat-tab-link routerLink="/favorites" routerLinkActive="active">
+    Favorites
+  </a>
+</nav>

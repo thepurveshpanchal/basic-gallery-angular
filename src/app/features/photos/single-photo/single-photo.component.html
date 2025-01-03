@@ -1,0 +1,13 @@
+<div class="single-photo-container">
+  <div class="single-photo">
+    <img [src]="photo?.url" alt="Photo" />
+    <button
+      class="remove-button"
+      mat-raised-button
+      color="warn"
+      (click)="removeFromFavorites()"
+    >
+      Remove from Favorites
+    </button>
+  </div>
+</div>

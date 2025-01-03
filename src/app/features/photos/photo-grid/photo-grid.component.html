@@ -1,0 +1,9 @@
+<div class="photo-grid" (scroll)="onScroll($event)">
+  <ng-container *ngFor="let photo of photos()">
+    <app-photo-card
+      [photo]="photo"
+      (click)="openPhotoDetails(photo)"
+    ></app-photo-card>
+  </ng-container>
+  <mat-spinner *ngIf="isLoading()"></mat-spinner>
+</div>

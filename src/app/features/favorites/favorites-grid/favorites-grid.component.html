@@ -1,0 +1,8 @@
+<div class="favorites-grid">
+  <ng-container *ngFor="let photo of favorites()">
+    <app-photo-card
+      [photo]="photo"
+      (click)="cardPhotoClicked(photo)"
+    ></app-photo-card>
+  </ng-container>
+</div>

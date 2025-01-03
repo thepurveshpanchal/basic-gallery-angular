@@ -1,0 +1,8 @@
+<div class="photo-card">
+  <img
+    *ngIf="photo()"
+    [src]="photo().url"
+    [alt]="photo().id"
+    class="photo-image"
+  />
+</div>

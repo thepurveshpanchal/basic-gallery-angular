@@ -1,0 +1,68 @@
+@import '../../../../assets/scss/variables';
+
+.single-photo-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.single-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-basis:300px;
+  margin: 20px;
+  background-color: #fff;
+  border-radius: $card-border-radius;
+  box-shadow: $box-shadow;
+  overflow: hidden;
+  transition: transform $transition-duration ease, box-shadow $transition-duration ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid #e0e0e0;
+    object-fit: cover;
+    transition: transform $transition-duration ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .remove-button {
+    margin: 10px;
+    background-color: $warn-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color $transition-duration ease, transform $transition-duration ease;
+
+    &:hover {
+      background-color: darken($warn-color, 10%);
+      transform: scale(1.05);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+// Responsive Design: Adjust layout on smaller screens
+@media (max-width: 600px) {
+  .single-photo {
+    max-width: 100%;
+    margin: 10px;
+  }
+}
+

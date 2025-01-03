@@ -1,0 +1,45 @@
+@import '../../../../assets/scss/variables';
+
+.photo-card {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 20px;
+  background-color: $secondary-color;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Styling for the image */
+.photo-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover; /* Ensures the image covers the card without distortion */
+  transition: transform 0.3s ease, filter 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9); /* Slight dimming on hover */
+  }
+}
+
+@media (max-width: 768px) {
+  .photo-card {
+    max-width: 100%;
+    margin: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-card {
+    max-width: 100%;
+    margin: 5px;
+  }
+}
