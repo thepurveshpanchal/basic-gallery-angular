@@ -33,7 +33,8 @@ jobs:
 
       - name: Docker configuration
         run: |-
-          gcloud auth activate-service-account --key-file=/home/aslairline_gcp/.docker/config.json
+          echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-credentials.json
+          gcloud auth activate-service-account --key-file=gcp-credentials.json
 
       - name: Build Docker Image
         run: |
