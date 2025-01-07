@@ -8,24 +8,16 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   GAR_LOCATION: europe-west1
-  GKE_CLUSTER:  purvesh-angular-cluster
+  GKE_CLUSTER: purvesh-angular-cluster
   GKE_REGION: europe-west1
   REPOSITORY: purvesh-angular-frontend
   IMAGE: basic-gallery-ng
 
 jobs:
-  build-publish-deploy:
-    name: Build, Publish, and Deploy Angular App
+  authenticate:
+    name: Authenticate to Google Cloud
     runs-on: self-hosted
-
-    permissions:
-      contents: "read"
-      id-token: "write"
-
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v3
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
         with:
@@ -37,6 +29,14 @@ jobs:
           gcloud auth activate-service-account --key-file=gcp-credentials.json
           gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://europe-west1-docker.pkg.dev
 
+  build:
+    name: Build Docker Image
+    runs-on: self-hosted
+    needs: authenticate
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
       - name: Build Docker Image
         run: |
           docker build \
@@ -45,8 +45,14 @@ jobs:
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
+  push:
+    name: Push Docker Image to Artifact Registry
+    runs-on: self-hosted
+    needs: build
+    steps:
       - name: Push Docker Image to Artifact Registry
         run: |-
+          gcloud auth list
           echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-credentials.json
           docker login -u _json_key --password-stdin https://$GAR_LOCATION-docker.pkg.dev < gcp-credentials.json
           docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
@@ -54,8 +60,12 @@ jobs:
       - name: Cleanup Docker Image from Workspace
         run: |
           docker rmi "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
-          
 
+  deploy:
+    name: Deploy to GKE
+    runs-on: self-hosted
+    needs: push
+    steps:
       - name: Configure kubectl
         uses: google-github-actions/get-gke-credentials@v0
         with:
