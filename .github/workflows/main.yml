@@ -69,8 +69,8 @@ jobs:
       - name: Configure kubectl
         uses: google-github-actions/get-gke-credentials@v2
         with:
-          cluster_name: ${{ env.GKE_CLUSTER }}
-          location: ${{ env.GKE_REGION }}
+          cluster_name: 'purvesh-angular-cluster'
+          location: 'europe-west1'
 
       - name: Deploy to GKE
         run: |
