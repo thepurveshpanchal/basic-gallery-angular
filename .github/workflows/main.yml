@@ -11,7 +11,7 @@ env:
   GKE_CLUSTER: purvesh-angular-cluster
   GKE_REGION: europe-west1
   REPOSITORY: purvesh-angular-frontend
-  IMAGE: basic-gallery-ng
+  IMAGE: purvesh-gallery-ng
 
 jobs:
   authenticate:
@@ -67,7 +67,7 @@ jobs:
     needs: push
     steps:
       - name: Configure kubectl
-        uses: google-github-actions/get-gke-credentials@v0
+        uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_REGION }}
