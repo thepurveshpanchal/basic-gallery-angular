@@ -10,6 +10,7 @@ env:
   GAR_LOCATION: europe-west1
   GKE_CLUSTER: purvesh-angular-cluster
   GKE_REGION: europe-west1
+  GCLOUD_PROJECT: asl-pocs
   REPOSITORY: purvesh-angular-frontend
   IMAGE: purvesh-gallery-ng
 
