@@ -67,6 +67,11 @@ jobs:
     runs-on: self-hosted
     needs: push
     steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          
       - name: Configure kubectl
         run: |-
           gcloud auth list
@@ -74,7 +79,7 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
       
-      - name: Auth GKE Cluster
+      - name: Authenticate with GKE Cluster
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: "purvesh-angular-cluster"
