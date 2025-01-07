@@ -19,21 +19,19 @@ spec:
         - name: angular-app
           image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG # Placeholder, replaced by GitHub Actions
           ports:
-            - containerPort: 4200
+            - containerPort: 80
           readinessProbe:
             httpGet:
               path: /
-              port: 4200
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 4200
+              port: 80
             initialDelaySeconds: 15
             periodSeconds: 20
-      imagePullSecrets:
-        - name: artifact-registry-secret # Ensure this secret exists in your namespace
 ---
 apiVersion: v1
 kind: Service
@@ -49,7 +47,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 4200
+      targetPort: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

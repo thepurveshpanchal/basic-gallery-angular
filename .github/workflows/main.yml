@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   GAR_LOCATION: europe-west1
-  GKE_CLUSTER: purvesh-angular-cluster
+  GKE_CLUSTER:  purvesh-angular-cluster
   GKE_REGION: europe-west1
   REPOSITORY: purvesh-angular-frontend
   IMAGE: basic-gallery-ng
