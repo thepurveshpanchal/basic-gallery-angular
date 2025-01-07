@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-app
+  namespace: default # Update this if using a custom namespace
+  labels:
+    app: angular-app
+spec:
+  replicas: 3 # Adjust based on your scaling requirements
+  selector:
+    matchLabels:
+      app: angular-app
+  template:
+    metadata:
+      labels:
+        app: angular-app
+    spec:
+      containers:
+        - name: angular-app
+          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG # Placeholder, replaced by GitHub Actions
+          ports:
+            - containerPort: 4200
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 4200
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 4200
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      imagePullSecrets:
+        - name: artifact-registry-secret # Ensure this secret exists in your namespace
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: angular-app-service
+  namespace: default # Update if using a custom namespace
+  labels:
+    app: angular-app
+spec:
+  type: ClusterIP # Use Internal LoadBalancer if needed for private GKE cluster
+  selector:
+    app: angular-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4200
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: angular-app-ingress
+  namespace: default # Update if using a custom namespace
+  annotations:
+    kubernetes.io/ingress.class: "gce" # Change based on your ingress controller
+    networking.gke.io/managed-certificates: "angular-app-cert" # Optional: Use GKE managed certificate
+spec:
+  rules:
+    - host: angular-app.your-domain.com # Replace with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: angular-app-service
+                port:
+                  number: 80
