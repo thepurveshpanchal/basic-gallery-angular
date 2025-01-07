@@ -31,15 +31,19 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+      - name: Docker configuration
+        run: |-
+          echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-credentials.json
+          gcloud auth activate-service-account --key-file=gcp-credentials.json
+          gcloud auth configure-docker
 
       - name: Build Docker Image
         run: |
           docker build \
-            --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA" .
-          docker images
+            --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA" \
+            --build-arg GITHUB_SHA="$GITHUB_SHA" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            .
 
       - name: Push Docker Image to Artifact Registry
         run: |
@@ -48,6 +52,7 @@ jobs:
       - name: Cleanup Docker Image from Workspace
         run: |
           docker rmi "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
+          
 
       - name: Configure kubectl
         uses: google-github-actions/get-gke-credentials@v0
