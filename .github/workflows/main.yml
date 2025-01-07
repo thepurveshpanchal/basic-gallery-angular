@@ -67,10 +67,17 @@ jobs:
     needs: push
     steps:
       - name: Configure kubectl
-        uses: google-github-actions/get-gke-credentials@v2
+        run: |-
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+      
+      - name: Auth GKE Cluster
+        uses: google-github-actions/get-gke-credentials@v0
         with:
-          cluster_name: 'purvesh-angular-cluster'
-          location: 'europe-west1'
+          cluster_name: "purvesh-angular-cluster"
+          location: "europe-west1"
+        
 
       - name: Deploy to GKE
         run: |
