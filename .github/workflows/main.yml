@@ -73,14 +73,16 @@ jobs:
           sudo mv kubectl /usr/local/bin/
       
       - name: Auth GKE Cluster
-        uses: google-github-actions/get-gke-credentials@v0
+        uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: "purvesh-angular-cluster"
           location: "europe-west1"
+            
         
 
       - name: Deploy to GKE
         run: |
+          gcloud auth list
           sed -i "s|LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG|$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA|g" k8s/deploy.yaml
           kubectl apply -f k8s/deploy.yaml
           kubectl rollout status deploy/angular-app --namespace=default
