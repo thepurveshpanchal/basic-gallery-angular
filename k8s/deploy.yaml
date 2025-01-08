@@ -39,14 +39,14 @@ kind: Service
 metadata:
   name: internal-lb
   annotations:
-    cloud.google.com/load-balancer-type: "Internal"
+    cloud.google.com/load-balancer-type: "Internal"  # Specifies an internal load balancer
 spec:
   selector:
     app: angular-app
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 8080
-  clusterIP: None  # This makes it an internal load balancer
-  type: LoadBalancer
+      port: 80         # Port exposed by the LoadBalancer
+      targetPort: 8080 # Port of the application container
+  type: LoadBalancer  # Defines the service as a LoadBalancer
+
 
