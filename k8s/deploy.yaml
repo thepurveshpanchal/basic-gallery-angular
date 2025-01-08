@@ -6,7 +6,7 @@ metadata:
   labels:
     app: angular-app
 spec:
-  replicas: 2 # Adjust based on your scaling requirements
+  replicas: 1 # Adjust based on your scaling requirements
   selector:
     matchLabels:
       app: angular-app
