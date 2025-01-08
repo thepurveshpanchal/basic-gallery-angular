@@ -15,29 +15,28 @@ env:
   IMAGE: purvesh-gallery-ng
 
 jobs:
-  authenticate:
-    name: Authenticate to Google Cloud
+  build:
+    name: Build and Push Docker Image
     runs-on: self-hosted
     steps:
+      # Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: Docker configuration
-        run: |-
+      # Docker login to Artifact Registry
+      - name: Docker login to Artifact Registry
+        run: |
           echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-credentials.json
           gcloud auth activate-service-account --key-file=gcp-credentials.json
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://europe-west1-docker.pkg.dev
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$GAR_LOCATION-docker.pkg.dev
 
-  build:
-    name: Build Docker Image
-    runs-on: self-hosted
-    needs: authenticate
-    steps:
+      # Checkout Source Code
       - name: Checkout Source Code
         uses: actions/checkout@v3
 
+      # Build the Docker Image
       - name: Build Docker Image
         run: |
           docker build \
@@ -46,18 +45,12 @@ jobs:
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
-  push:
-    name: Push Docker Image to Artifact Registry
-    runs-on: self-hosted
-    needs: build
-    steps:
-      - name: Push Docker Image to Artifact Registry
-        run: |-
-          gcloud auth list
-          echo '${{ secrets.GCP_CREDENTIALS }}' > gcp-credentials.json
-          docker login -u _json_key --password-stdin https://$GAR_LOCATION-docker.pkg.dev < gcp-credentials.json
+      # Push Docker Image to Artifact Registry
+      - name: Push Docker Image
+        run: |
           docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
 
+      # Cleanup Docker Image
       - name: Cleanup Docker Image from Workspace
         run: |
           docker rmi "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA"
@@ -65,38 +58,42 @@ jobs:
   deploy:
     name: Deploy to GKE
     runs-on: self-hosted
-    needs: push
+    needs: build
     steps:
+      # Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-  
+
+      # Configure kubectl
       - name: Configure kubectl
-        run: |-
-          gcloud auth list
+        run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
-        
+
+      # Authenticate with GKE Cluster
       - name: Authenticate with GKE Cluster
         uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_REGION }}
-          
-      - name: Deploy to GKE
-        run: |-
-          gcloud auth list
+
+      # Deploy to GKE
+      - name: Deploy Application
+        run: |
           sed -i "s|LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG|$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE:$GITHUB_SHA|g" k8s/deploy.yaml
           kubectl apply -f k8s/deploy.yaml
           kubectl rollout status deploy/angular-gallery --namespace=default
-  
+
+      # Retrieve Public IP
       - name: Retrieve Public IP
         id: get-public-ip
         run: |
           export SERVICE_IP=$(kubectl get svc external-lb -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "SERVICE_IP=$SERVICE_IP" >> $GITHUB_ENV
-  
+
+      # Display Public IP
       - name: Display Public IP
         run: echo "The public IP address of the service is ${{ env.SERVICE_IP }}"
