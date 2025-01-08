@@ -1,25 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: angular-app
+  name: angular-gallery
   namespace: default # Update if using a custom namespace
   labels:
-    app: angular-app
+    app: angular-gallery
 spec:
   replicas: 1 # Adjust based on your scaling requirements
   selector:
     matchLabels:
-      app: angular-app
+      app: angular-gallery
   template:
     metadata:
       labels:
-        app: angular-app
+        app: angular-gallery
     spec:
       containers:
-        - name: angular-app
-          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG # Replace with GitHub Actions
+        - name: angular-gallery
+          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG # Placeholder Replaced with GitHub Actions
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              memory: "256Mi"  # Minimum memory requested
+              cpu: "250m"       # Minimum CPU requested 0.25vCPU
+            limits:
+              memory: "512Mi"   # Maximum memory allowed
+              cpu: "500m"       # Maximum CPU allowed 0.5vCPU
           readinessProbe:
             httpGet:
               path: /
@@ -42,12 +49,9 @@ metadata:
     cloud.google.com/neg: '{"exposed_ports":{"80":{"name":"external-lb-neg"}}}' # Optional for better GKE integration
 spec:
   selector:
-    app: angular-app # Match the labels of the pod you want to expose
+    app: angular-gallery # Match the labels of the pod you want to expose
   ports:
     - protocol: TCP
       port: 80         # Port exposed by the LoadBalancer to the internet
-      targetPort: 80   # Port on the pod serving the application
+      targetPort: 80   # Port of the application running on the pod
   type: LoadBalancer
-
-
-
