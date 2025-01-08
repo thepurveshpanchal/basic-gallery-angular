@@ -37,16 +37,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: internal-lb
+  name: external-lb
   annotations:
-    cloud.google.com/load-balancer-type: "Internal"  # Specifies an internal load balancer
+    cloud.google.com/neg: '{"exposed_ports":{"80":{"name":"external-lb-neg"}}}' # Optional for better GKE integration
 spec:
   selector:
-    app: angular-app
+    app: angular-app # Match the labels of the pod you want to expose
   ports:
     - protocol: TCP
-      port: 80         # Port exposed by the LoadBalancer
-      targetPort: 8080 # Port of the application container
-  type: LoadBalancer  # Defines the service as a LoadBalancer
+      port: 80         # Port exposed by the LoadBalancer to the internet
+      targetPort: 80   # Port on the pod serving the application
+  type: LoadBalancer
+
 
 
