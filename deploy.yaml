@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
 metadata:
   name: angular-gallery
   namespace: default # Update if using a custom namespace
@@ -8,8 +8,7 @@ metadata:
 spec:
   replicas: 1 # Adjust based on your scaling requirements
   selector:
-    matchLabels:
-      app: angular-gallery
+    app: angular-gallery
   template:
     metadata:
       labels:
@@ -29,7 +28,7 @@ spec:
               cpu: "500m"       # Maximum CPU allowed 0.5vCPU
           readinessProbe:
             httpGet:
-              path: /
+              path: / 
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -44,14 +43,31 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: external-lb
+  name: angular-gallery-service
   annotations:
-    cloud.google.com/neg: '{"exposed_ports":{"80":{"name":"external-lb-neg"}}}' # Optional for better GKE integration
+    cloud.google.com/neg: '{"exposed_ports":{"80":{"name":"angular-gallery-neg"}}}' # Optional for better GKE integration
 spec:
   selector:
     app: angular-gallery # Match the labels of the pod you want to expose
   ports:
     - protocol: TCP
-      port: 80         # Port exposed by the LoadBalancer to the internet
+      port: 80         # Port exposed internally
       targetPort: 80   # Port of the application running on the pod
-  type: LoadBalancer
+  type: ClusterIP # Default type for internal service in OpenShift
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: angular-gallery-route
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  host: angular-gallery.<cluster_domain>  # Replace <cluster_domain> with your cluster's domain
+  to:
+    kind: Service
+    name: angular-gallery-service
+  port:
+    targetPort: 80
+  tls:
+    termination: edge  # Optional, if you're using TLS
