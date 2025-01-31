@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: angular-gallery
-          image: purveshpanchal/photos:093422 # Placeholder Replaced with GitHub Actions
+          image: purveshpanchal/photos:095347
           ports:
             - containerPort: 80
           resources:
