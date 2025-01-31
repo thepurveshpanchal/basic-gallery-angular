@@ -48,5 +48,6 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add .
           git diff --staged || git commit -m "Update photos docker image with $TIMESTAMP in k8s/deploy.yaml"
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          # git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+          git push origin main
 
