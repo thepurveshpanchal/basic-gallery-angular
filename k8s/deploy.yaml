@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: angular-gallery
-          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG # Placeholder Replaced with GitHub Actions
+          image: purveshpanchal/photos:$TIMESTAMP # Placeholder Replaced with GitHub Actions
           ports:
             - containerPort: 80
           resources:

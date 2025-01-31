@@ -36,7 +36,8 @@ jobs:
       # Update deploy.yaml with new image tag
       - name: Update Deployment YAML
         run: |
-          sed -i "s|image: .*/image:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/photos:$TIMESTAMP|g" deploy.yaml
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/photos:$TIMESTAMP|g" k8s/deploy.yaml
+          cat k8s/deploy.yaml
 
       # Commit and Push Changes
       - name: Commit and Push Updated Deployment File
