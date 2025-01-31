@@ -43,6 +43,6 @@ jobs:
         run: |
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Actions"
-          git add deploy.yaml
-          git commit -m "Update image to $TIMESTAMP"
-          git push
+          git add .
+          git commit -m "Update photos image to $TIMESTAMP"
+          git push origin main
