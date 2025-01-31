@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: angular-gallery
-          image: purveshpanchal/photos:095347
+          image: purveshpanchal/photos:100029
           ports:
             - containerPort: 80
           resources:
