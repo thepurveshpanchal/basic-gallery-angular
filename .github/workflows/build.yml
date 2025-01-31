@@ -42,10 +42,11 @@ jobs:
       # Commit and Push Changes
       - name: Commit and Push Updated Deployment File
         env:
-          GITHUB_TOKEN: ${{ secrets.PURVESH_GAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.email "thepurveshpanchal@gmail.com"
-          git config --global user.name "thepurveshpanchal"
-          git add .
-          git commit -m "Update image to $TIMESTAMP"
-          git push origin main
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Actions"
+          git add deploy.yaml
+          git diff --staged --quiet || git commit -m "Update image to $TIMESTAMP"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+
