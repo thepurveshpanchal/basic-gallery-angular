@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Build, Push, and Deploy with ArgoCD
 
 on:
   push:
@@ -18,12 +18,42 @@ jobs:
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
+      # Get timestamp
+      - name: Get Timestamp
+        run: echo "TIMESTAMP=$(date +%H%M%S)" >> $GITHUB_ENV
+
       # Build the Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/photos:$GITHUB_SHA .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/image:$TIMESTAMP .
 
       # Push Docker Image to Docker Hub
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/photos:$GITHUB_SHA
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/image:$TIMESTAMP
+
+  deploy:
+    name: Deploy to ArgoCD
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # Checkout ArgoCD Repository
+      - name: Checkout ArgoCD Repository
+        uses: actions/checkout@v3
+        with:
+          repository: https://github.com/thepurveshpanchal/basic-gallery-angular
+          token: ${{ secrets.PURVESH_GAT }}
+
+      # Update ArgoCD Application YAML
+      - name: Update ArgoCD Application
+        run: |
+          sed -i "s|image: .*/image:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/image:$TIMESTAMP|g" k8s/deploy.yaml
+
+      # Commit and Push Changes
+      - name: Commit and Push
+        run: |
+          git config --global user.email "thepurveshpanchal@gmail.com"
+          git config --global user.name "thepurveshpanchal"
+          git add k8s/deploy.yaml
+          git commit -m "Update image to $TIMESTAMP"
+          git push
