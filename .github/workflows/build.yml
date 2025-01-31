@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Build, Push, and Update Deployment
 
 on:
   push:
@@ -32,3 +32,17 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/photos:$TIMESTAMP
+
+      # Update deploy.yaml with new image tag
+      - name: Update Deployment YAML
+        run: |
+          sed -i "s|image: .*/image:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/photos:$TIMESTAMP|g" deploy.yaml
+
+      # Commit and Push Changes
+      - name: Commit and Push Updated Deployment File
+        run: |
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Actions"
+          git add deploy.yaml
+          git commit -m "Update image to $TIMESTAMP"
+          git push
